@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import TimezoneSelect from 'react-timezone-select';
 const AddReminder = ({ loggedInEmail, setLoggedInEmail }) => {
   const [text, setText] = useState('');
@@ -11,9 +11,7 @@ const AddReminder = ({ loggedInEmail, setLoggedInEmail }) => {
   //     ':00' +
   //     selectedTimezone?.label?.split(' ')[0].split(')')[0].split('T')[1]
   // );
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  useEffect(() => {
     if (
       selectedTimezone?.label
         ?.split(' ')[0]
@@ -31,43 +29,70 @@ const AddReminder = ({ loggedInEmail, setLoggedInEmail }) => {
         ?.split(' ')[0]
         .split(')')[0]
         .split('T')[1];
-      setTimeZone(time + ':00' + t[0] + '0' + t[1] + t[2] + t[3] + t[4]);
+      if (t) {
+        setTimeZone(time + ':00' + t[0] + '0' + t[1] + t[2] + t[3] + t[4]);
+      }
     }
-    console.log(timeZone);
-    // console.log(
-    //   loggedInEmail,
-    //   time +
-    //     ':00' +
-    //     selectedTimezone?.label?.split(' ')[0].split(')')[0].split('T')[1],
-    //   text,
-    //   new Date(
-    //     time +
-    //       ':00' +
-    //       selectedTimezone?.label?.split(' ')[0].split(')')[0].split('T')[1]
-    //   )
-    // );
-    // if (text && time) {
-    //   fetch('http://localhost:4000/api/add-reminder', {
-    //     method: 'POST',
-    //     headers: {
-    //       'content-type': 'application/json',
-    //       token: `bearer ${sessionStorage.getItem('token')}`,
-    //     },
-    //     body: JSON.stringify({
-    //       ownerEmail: loggedInEmail,
-    //       reminderText: text,
-    //       reminderTime: time,
-    //     }),
-    //   })
-    //     .then((response) => response.json())
-    //     .then((data) => {
-    //       if (data.msg === 'success') {
-    //         alert('reminder added successfully');
-    //       }
-    //     });
-    // } else {
-    //   alert('Please! Enter all data.');
-    // }
+  }, [selectedTimezone, time]);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // console.log(timeZone);
+    console.log(
+      // loggedInEmail,
+      // time +
+      //   ':00' +
+      //   selectedTimezone?.label?.split(' ')[0].split(')')[0].split('T')[1],
+      // text,
+      new Date(timeZone)
+    );
+    if (text && time) {
+      let t = new Date(time);
+      console.log(
+        text,
+        time,
+        t.getFullYear() +
+          '-' +
+          t.getMonth() +
+          '-' +
+          t.getDay() +
+          '-' +
+          t.getHours() +
+          '-' +
+          t.getMinutes()
+      );
+      let t1 = new Date(time);
+      let t2 =
+        t1.getFullYear() +
+        '-' +
+        t1.getMonth() +
+        '-' +
+        t1.getDay() +
+        '-' +
+        t1.getHours() +
+        '-' +
+        t1.getMinutes();
+      fetch('http://localhost:4000/api/add-reminder', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          token: `bearer ${sessionStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          ownerEmail: loggedInEmail,
+          reminderText: text,
+          reminderTime: t2,
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.msg === 'success') {
+            alert('reminder added successfully');
+          }
+        });
+    } else {
+      alert('Please! Enter all data.');
+    }
   };
 
   return (
